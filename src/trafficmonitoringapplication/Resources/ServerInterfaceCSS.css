@@ -1,0 +1,126 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 24/06/2019, 12:21:36 PM
+    Author     : Dan
+*/
+.root {
+    -fx-background-color: #CFEAFF;
+}
+.button {
+    -fx-background-color: #7CBEE0;
+    -fx-background-radius: 0;
+    -fx-text-fill: black;
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-border-color: #CFEAFF;
+    -fx-border-width: 2 2 2 2;
+    -fx-border-insets: 2 2 2 2;
+    -fx-pref-height: 50px;
+    -fx-pref-width: 150px;
+}
+
+.button:hover {
+    -fx-background-color: #CC4D11;
+}
+
+.smallButton {
+    -fx-background-color: #7CBEE0;
+    -fx-background-radius: 0;
+    -fx-text-fill: black;
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-border-color: #CFEAFF;
+    -fx-border-width: 2 2 2 2;
+    -fx-border-insets: 2 2 2 2;
+    -fx-pref-height: 40px;
+    -fx-pref-width: 100px;
+}
+
+.smallButton:hover {
+    -fx-background-color: #CC4D11;
+}
+
+
+
+.label {
+    -fx-text-fill: black;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+}
+
+.label-heading {
+    -fx-text-fill: black;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 16px;
+}
+
+.officeHeading {
+    -fx-text-fill: white;
+    -fx-background-color: #0D2644;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 24px;
+}
+
+.smallLabel-center {
+    -fx-text-fill: white;
+    -fx-background-color: #0D2644;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.smallLabel-left {
+    -fx-text-fill: white;
+    -fx-background-color: #0D2644;
+    -fx-alignment: CENTER_LEFT;
+    -fx-text-alignment: left;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: black;
+}
+.combo-box-popup .list-view{
+    -fx-background-color: grey;
+}
+
+.combo-box-popup .list-view .list-cell{
+    -fx-text-fill: black;
+    -fx-padding: 4 0 4 5;
+    -fx-background-color: grey;
+}
+
+.combo-box-popup .list-view .list-cell:filled:selected, .combo-box-popup .list-view .list-cell:filled:selected:hover{
+    -fx-background-color: grey;
+    -fx-text-fill: black;
+}
+
+.combo-box-popup .list-view .list-cell:filled:hover{
+    -fx-background-color: #7CBEE0;
+    -fx-text-fill: black;
+}
+
+.combo-box-base{
+    -fx-background-color: white;
+    -fx-padding: 0;
+    -fx-background-radius: 0;
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-border-color: #7CBEE0;
+    -fx-background-radius: 0;
+}
