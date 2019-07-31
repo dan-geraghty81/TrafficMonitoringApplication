@@ -13,7 +13,6 @@ import trafficmonitoringapplication.Resources.GUILibrary;
 import trafficmonitoringapplication.DLL.DoublyLinkedList;
 import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Random;
@@ -21,8 +20,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -538,6 +535,7 @@ public class ServerGUI extends Application
     }
 
 //</editor-fold>
+
 //<editor-fold defaultstate="collapsed" desc="Override Methods">
     @Override
     public void init() throws Exception

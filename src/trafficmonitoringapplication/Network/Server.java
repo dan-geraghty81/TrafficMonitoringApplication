@@ -6,18 +6,18 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import trafficmonitoringapplication.ServerGUI;
 
 public class Server
 {
 
+    final Logger logger = LoggerFactory.getLogger(Server.class);
+
     private static int stationID;
     private ArrayList<StationThread> stationList;
-    private static HashSet<String> usernames = new HashSet<String>();
     private boolean connected, serverStarted = false;
     private String serverIP, stationNo;
     private int portNo;
@@ -28,7 +28,7 @@ public class Server
         this.serverIP = serverIP;
         this.portNo = portNo;
         this.gui = gui;
-        stationList = new ArrayList<StationThread>();
+        stationList = new ArrayList<>();
     }
 
     public void start()
@@ -110,8 +110,12 @@ public class Server
         {
             for (int i = 0; i < stationList.size(); ++i)
             {
-                StationThread ct = stationList.get(i);
-                displayMessage("Station: " + ct.username + " is connected.");
+                StationThread st = stationList.get(i);
+                if (!st.writeMsg(new MessageType(MessageType.STATIONS, "Check")))
+                {
+                    stationList.remove(i);
+                }
+                displayMessage("Station: " + st.username + " is connected.");
             }
         }
     }
@@ -124,8 +128,10 @@ public class Server
             if (st.id == id)
             {
                 System.out.println(id);
+                st.close();
                 stationList.remove(i);
                 return;
+
             }
         }
     }
@@ -195,7 +201,6 @@ public class Server
                         break;
                     case MessageType.LOGOUT:
                         gui.displayNotifications(3, username);
-                        usernames.remove(username);
                         connected = false;
                         break;
                     case MessageType.MESSAGE:
@@ -251,7 +256,7 @@ public class Server
             }
         }
 
-        private boolean writeMsg(String msg)
+        private boolean writeMsg(MessageType msg)
         {
             // if Client is still connected send the message to it
             if (!socket.isConnected())

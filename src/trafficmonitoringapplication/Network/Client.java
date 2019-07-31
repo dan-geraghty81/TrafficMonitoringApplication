@@ -148,8 +148,11 @@ public class Client
             {
                 try
                 {
-                    String msg = (String) sInput.readObject();
+                    MessageType msg = (MessageType)sInput.readObject();
                     // if console mode print the message and add back the prompt
+                    if (msg.getType() == 4){
+                        System.out.println("Station Check");
+                    }
                     System.out.println(msg);
                     System.out.print("> ");
                 }
