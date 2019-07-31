@@ -14,26 +14,27 @@ public class BinaryTree
 
     BTNode root;
     String msg = "";
+    int size = 0;
 
     public BTNode getNode()
     {
         return root;
     }
     
-    private BTNode addRecursive(BTNode current, int value)
+    private BTNode addRecursive(BTNode current, int value, String data)
     {
         if (current == null)
         {
-            return new BTNode(value);
+            return new BTNode(value, data);
         }
 
         if (value < current.value)
         {
-            current.left = addRecursive(current.left, value);
+            current.left = addRecursive(current.left, value, data);
         }
         else if (value > current.value)
         {
-            current.right = addRecursive(current.right, value);
+            current.right = addRecursive(current.right, value, data);
         }
         else
         {
@@ -44,9 +45,10 @@ public class BinaryTree
         return current;
     }
 
-    public void add(int value)
+    public void add(int value, String data)
     {
-        root = addRecursive(root, value);
+        root = addRecursive(root, value, data);
+        size++;
     }
 
     private boolean containsNodeRecursive(BTNode current, int value)
@@ -107,5 +109,60 @@ public class BinaryTree
         this.msg = msg;
     }
     
+    public int getSize()
+    {
+        return size;
+    }
+    
+    public String saveBinaryTree(BTNode node, int index)
+    {
+        setMessage("");
+        switch(index)
+        {
+            case 1:
+                msg = savePreOrder(root);
+                break;
+            case 2:
+                msg = saveInOrder(root);
+                break;
+            case 3:
+                msg = savePostOrder(root);
+                break;
+        }
+        return msg;
+    }
+    
+    public String saveInOrder(BTNode node)
+    {
+        if (node != null)
+        {
+            saveInOrder(node.left);
+            msg = msg + (node.data + "|" + node.value + "|");
+            saveInOrder(node.right);
+        }
+        return msg;
+    }
+    
+    public String savePreOrder(BTNode node)
+    {
+        if (node != null)
+        {
+            msg = msg + (node.data + "|" + node.value + "|");
+            savePreOrder(node.left);
+            savePreOrder(node.right);
+        }
+        return msg;
+    }
+
+    public String savePostOrder(BTNode node)
+    {
+        if (node != null)
+        {
+            savePostOrder(node.left);
+            savePostOrder(node.right);
+            msg = msg + (node.data + "|" + node.value + "|");
+        }
+        return msg;
+    }
     
 }

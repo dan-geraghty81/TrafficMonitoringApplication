@@ -12,12 +12,14 @@ package trafficmonitoringapplication.BTree;
 public class BTNode
 {
     int value;
+    String data;
     BTNode left;
     BTNode right;
     
-    BTNode(int value)
+    BTNode(int value, String data)
     {
         this.value = value;
+        this.data = data;
         right = null;
         left = null;
     }

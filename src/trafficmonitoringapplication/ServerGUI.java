@@ -5,12 +5,16 @@
  */
 package trafficmonitoringapplication;
 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import trafficmonitoringapplication.Network.Server;
 import trafficmonitoringapplication.Resources.GUILibrary;
 import trafficmonitoringapplication.DLL.DoublyLinkedList;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Random;
 import java.util.logging.Level;
@@ -114,8 +118,7 @@ public class ServerGUI extends Application
 
         for (int i = 0; i < 10; i++)
         {
-            
-            
+
             totVehicle = random.nextInt(50) * 3;
             avgVehicle = totVehicle / 4;
             MonitoringData md = new MonitoringData(dataID, "" + time, "2", "4", "" + totVehicle, "" + avgVehicle, "" + random.nextInt(50));
@@ -322,12 +325,12 @@ public class ServerGUI extends Application
 
         btnInSave.setOnAction((ActionEvent e) ->
         {
-
+            saveBinaryTree(2);
         });
 
         btnPostSave.setOnAction((ActionEvent e) ->
         {
-
+            saveBinaryTree(3);
         });
     }
 //</editor-fold>
@@ -341,7 +344,7 @@ public class ServerGUI extends Application
             sortList.add(tblData.getItems().get(i).getObject());
         }
     }
-    
+
     private ArrayList<String> bubbleSortByLocation(ArrayList<String> list)
     {
         String temp;
@@ -363,7 +366,7 @@ public class ServerGUI extends Application
         }
         return list;
     }
-    
+
     private ArrayList<String> inserstionSortByVehicle(ArrayList<String> list)
     {
         String temp;
@@ -383,14 +386,14 @@ public class ServerGUI extends Application
         }
         return list;
     }
-    
+
     private ArrayList<String> mergeSortVelocity(ArrayList<String> list)
     {
         //Split list
         ArrayList<String> left = new ArrayList();
         ArrayList<String> right = new ArrayList();
         int center = list.size() / 2;
-        
+
         if (list.size() <= 1)
         {
             return list;
@@ -398,38 +401,38 @@ public class ServerGUI extends Application
         else
         {
             center = list.size() / 2;
-            
+
             for (int i = 0; i < center; i++)
             {
                 left.add(list.get(i));
             }
-            
+
             for (int i = center; i < list.size(); i++)
             {
                 right.add(list.get(i));
             }
-            
+
             left = mergeSortVelocity(left);
             right = mergeSortVelocity(right);
-            
+
             merge(left, right, list);
         }
         return list;
     }
-    
+
     private void merge(ArrayList<String> left, ArrayList<String> right, ArrayList<String> list)
     {
         int leftIndex = 0;
         int rightIndex = 0;
         int listIndex = 0;
-        
+
         while (leftIndex < left.size() && rightIndex < right.size())
         {
             String data1 = left.get(leftIndex);
             String[] temp1 = data1.split(", ");
             String data2 = right.get(rightIndex);
             String[] temp2 = data2.split(", ");
-            
+
             if (Integer.parseInt(temp1[6]) < Integer.parseInt(temp2[6]))
             {
                 list.set(listIndex, left.get(leftIndex));
@@ -442,7 +445,7 @@ public class ServerGUI extends Application
             }
             listIndex++;
         }
-        
+
         ArrayList<String> rest;
         int restIndex;
         if (leftIndex >= left.size())
@@ -455,7 +458,7 @@ public class ServerGUI extends Application
             rest = left;
             restIndex = leftIndex;
         }
-        
+
         for (int i = restIndex; i < rest.size(); i++)
         {
             list.set(listIndex, rest.get(i));
@@ -486,11 +489,13 @@ public class ServerGUI extends Application
 //<editor-fold defaultstate="collapsed" desc="Binary Tree">
     private void createBinaryTree()
     {
+        String data;
         bTree = new BinaryTree();
         for (int row = 0; row < tblData.getItems().size(); row++)
         {
+            data = tblData.getItems().get(row).getLocation() + " @ " + tblData.getItems().get(row).getTime();
             System.out.println(tblData.getItems().get(row).getObject());
-            bTree.add(Integer.parseInt(tblData.getItems().get(row).getTotVehicles()));
+            bTree.add(Integer.parseInt(tblData.getItems().get(row).getTotVehicles()), data);
             txtBinaryTree.setText("Vehicle numbers added to Binary Tree.\nSelect a button below to display data.");
         }
     }
@@ -498,23 +503,41 @@ public class ServerGUI extends Application
     private void saveBinaryTree(int index)
     {
         binaryOutput = new LinkedHashMap<>();
-        String key;
+        String data = null, outputFileName = null;
+
+        // Get BinaryTree data based on order selected.
         switch (index)
         {
             case 1:
-                for (int row = 0; row < tblData.getItems().size(); row++)
-                {
-                    key = "Station " + tblData.getItems().get(row).getLocation() + "@" + tblData.getItems().get(row).getTime();
-                    binaryOutput.put(key, Integer.parseInt(tblData.getItems().get(row).getTotVehicles()));
-                }
-                System.out.println(binaryOutput);
+                data = bTree.saveBinaryTree(bTree.getNode(), 1);
+                outputFileName = "BT-PreOrder.txt";
+                System.out.println(data);
                 break;
-                
+            case 2:
+                data = bTree.saveBinaryTree(bTree.getNode(), 2);
+                outputFileName = "BT-InOrder.txt";
+                System.out.println(data);
+                break;
+            case 3:
+                data = bTree.saveBinaryTree(bTree.getNode(), 3);
+                outputFileName = "BT-PostOrder.txt";
+                System.out.println(data);
+                break;
         }
+
+        // Split the retreived BinaryTree data into key/value pairs and add
+        // to LinkedHashMap.
+        String[] output = data.split("\\|");
+        for (int i = 0; i < output.length - 1; i = i + 2)
+        {
+            binaryOutput.put(output[i], Integer.parseInt(output[i + 1]));
+        }
+        writeFile(outputFileName);
+        System.out.println(binaryOutput);
+
     }
 
 //</editor-fold>
-    
 //<editor-fold defaultstate="collapsed" desc="Override Methods">
     @Override
     public void init() throws Exception
@@ -638,8 +661,7 @@ public class ServerGUI extends Application
 
         TableColumn velocityColumn = new TableColumn("Avg Velocity");
         velocityColumn.setCellValueFactory(new PropertyValueFactory<>("velocity"));
-        
-        
+
         locationColumn.setResizable(false);
         timeColumn.setResizable(false);
         avgVehicleColumn.setResizable(false);
@@ -680,6 +702,31 @@ public class ServerGUI extends Application
             int id = Integer.parseInt(message[0]);
             MonitoringData md = new MonitoringData(id, message[1], message[2], message[3], message[4], message[5], message[6]);
             tblData.getItems().add(md);
+        }
+    }
+//</editor-fold>
+
+//<editor-fold defaultstate="collapsed" desc="File Operations">
+    public void writeFile(String filename)
+    {
+        try
+        {
+            BufferedWriter out = new BufferedWriter(new FileWriter(filename));
+
+            // Create Iterator to traverse through the LinkedHashMap to write
+            // data to output file
+            Iterator it = binaryOutput.values().iterator();
+            for (Object value : binaryOutput.keySet())
+            {
+                Object iter = it.next();
+                out.write("Station " + value + " " + iter + " vehicles.");
+                out.newLine();
+            }
+            out.close();
+        }
+        catch (IOException ex)
+        {
+            Logger.getLogger(ServerGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 //</editor-fold>
