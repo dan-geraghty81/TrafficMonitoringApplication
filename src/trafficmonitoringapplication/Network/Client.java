@@ -35,7 +35,7 @@ public class Client
         try
         {
             socket = new Socket(server, port);
-        } // if it failed not much I can so
+        } 
         catch (Exception ec)
         {
             displayMessage("Error connectiong to server:" + ec);
@@ -45,7 +45,7 @@ public class Client
         String msg = "Connection accepted " + socket.getInetAddress() + ":" + socket.getPort();
         displayMessage(msg);
 
-        /* Creating both Data Stream */
+        // Creating Input & Output Streams
         try
         {
             sInput = new ObjectInputStream(socket.getInputStream());
@@ -57,14 +57,13 @@ public class Client
             return false;
         }
 
-        // creates the Thread to listen from the server 
+        // Creates the Thread to listen from the server 
         new ListenFromServer().start();
+        
+        // Send Login Message
         try
         {
-            
-            sOutput.writeObject(stationNo);
-
-            
+            sOutput.writeObject(new MessageType(0,stationNo));
         }
         catch (IOException eIO)
         {
@@ -72,7 +71,7 @@ public class Client
             disconnect();
             return false;
         }
-        // success we inform the caller that it worked
+        // Return Successful Connection status
         return true;
     }
 
@@ -141,7 +140,6 @@ public class Client
      */
     class ListenFromServer extends Thread
     {
-
         public void run()
         {
             while (true)
@@ -153,10 +151,8 @@ public class Client
                     if (msg.getType() == 4){
                         System.out.println("Station Check");
                     }
-                    System.out.println(msg);
-                    System.out.print("> ");
+                    System.out.println(msg.getMessage());
                 }
-
                 catch (IOException e)
                 {
                     displayMessage("Server has close the connection: " + e);
@@ -164,10 +160,8 @@ public class Client
                 }
                 catch (ClassNotFoundException ex)
                 {
-                    Logger.getLogger(Client.class.getName()).log(Level.SEVERE, null, ex);
-                } // can't happen with a String object but need the catch anyhow                catch (ClassNotFoundException e2)
-                {
-                }
+                    System.out.println("Error: " + ex);
+                } 
             }
         }
     }

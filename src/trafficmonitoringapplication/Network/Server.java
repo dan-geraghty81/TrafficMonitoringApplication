@@ -6,7 +6,6 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import trafficmonitoringapplication.ServerGUI;
@@ -58,12 +57,12 @@ public class Server
                 serverSocket.close();
                 for (int i = 0; i < stationList.size(); i++)
                 {
-                    StationThread sc = stationList.get(i);
+                    StationThread st = stationList.get(i);
                     try
                     {
-                        sc.sInput.close();
-                        sc.sOutput.close();
-                        sc.socket.close();
+                        st.sInput.close();
+                        st.sOutput.close();
+                        st.socket.close();
                     }
                     catch (IOException e)
                     {
@@ -127,18 +126,14 @@ public class Server
             StationThread st = stationList.get(i);
             if (st.id == id)
             {
-                System.out.println(id);
-                st.close();
                 stationList.remove(i);
                 return;
-
             }
         }
     }
 
     class StationThread extends Thread
     {
-
         Socket socket;
         ObjectInputStream sInput;
         ObjectOutputStream sOutput;
@@ -158,7 +153,17 @@ public class Server
                 sInput = new ObjectInputStream(socket.getInputStream());
                 try
                 {
-                    username = (String) sInput.readObject();
+                    mt = (MessageType) sInput.readObject();
+                    if (mt.getType() == 0)
+                    {
+                        username = mt.getMessage();
+                        gui.displayNotifications(2, username);
+                    }
+                    else
+                    {
+                        sOutput.writeObject(new MessageType(5, "Error with username"));
+                        return;
+                    }
                 }
                 catch (ClassNotFoundException ex)
                 {
@@ -276,6 +281,5 @@ public class Server
             }
             return true;
         }
-
     }
 }
