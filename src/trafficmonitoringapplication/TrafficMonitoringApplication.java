@@ -5,12 +5,19 @@
  */
 package trafficmonitoringapplication;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import trafficmonitoringapplication.Resources.GUILibrary;
 import javafx.application.Application;
+import static javafx.collections.FXCollections.observableArrayList;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
@@ -31,6 +38,7 @@ public class TrafficMonitoringApplication extends Application
     Scene configScene, serverScene, clientScene;
     Button btnExit, btnBack, btnStartServer, btnStartClient, btnClient, btnServer;
     TextField txtServer, txtPort, txtStationNo;
+    ComboBox cmbServer;
     Label lblServer, lblPort, lblTitle, lblStationNo, lblHeading;
     HBox boxTitle, boxButtons, boxSetup;
     VBox boxServerConfig, boxClientConfig, boxAppConfig;
@@ -39,6 +47,7 @@ public class TrafficMonitoringApplication extends Application
 //<editor-fold defaultstate="collapsed" desc="Global Variables">
     String hostServer, stationNo;
     int portNo;
+    private ObservableList<String> ipAddress = observableArrayList();
 //</editor-fold>
 
     /**
@@ -52,6 +61,15 @@ public class TrafficMonitoringApplication extends Application
     @Override
     public void start(Stage primaryStage)
     {
+        try
+        {
+            hostServer = getIPAddress();
+        }
+        catch (UnknownHostException ex)
+        {
+            System.out.println(ex);
+        }
+        ipAddress.add(hostServer);
         createScene(primaryStage);
         appStage.show();
     }
@@ -124,7 +142,7 @@ public class TrafficMonitoringApplication extends Application
         boxServerConfig = GUILibrary.addAVBox(root, "Center", 20, 400, 150);
         boxServerConfig.setAlignment(Pos.CENTER);
         lblServer = GUILibrary.addALabel(boxServerConfig, "Enter Server Address:");
-        txtServer = GUILibrary.addATextField(boxServerConfig, 200, true);
+        cmbServer = GUILibrary.addAComboBox(boxServerConfig, ipAddress, 200, false);
         lblPort = GUILibrary.addALabel(boxServerConfig, "Enter Port Number:");
         txtPort = GUILibrary.addATextField(boxServerConfig, 200, true);
         txtPort.setText("1234");
@@ -142,7 +160,7 @@ public class TrafficMonitoringApplication extends Application
         boxClientConfig = GUILibrary.addAVBox(root, "Center", 20, 400, 150);
         boxClientConfig.setAlignment(Pos.CENTER);
         lblServer = GUILibrary.addALabel(boxClientConfig, "Select Server Address:");
-        txtServer = GUILibrary.addATextField(boxClientConfig, 200, true);
+        cmbServer = GUILibrary.addAComboBox(boxClientConfig, ipAddress, 200, false);
         lblPort = GUILibrary.addALabel(boxClientConfig, "Enter Port Number:");
         txtPort = GUILibrary.addATextField(boxClientConfig, 200, true);
         txtPort.setText("1234");
@@ -201,7 +219,7 @@ public class TrafficMonitoringApplication extends Application
         {
             btnStartServer.setOnAction((ActionEvent e) ->
             {
-                hostServer = txtServer.getText();
+                hostServer = cmbServer.getValue().toString();
                 portNo = Integer.parseInt(txtPort.getText());
                 ServerGUI server = new ServerGUI(hostServer, portNo);
                 appStage.close();
@@ -214,7 +232,7 @@ public class TrafficMonitoringApplication extends Application
         {
             btnStartClient.setOnAction((ActionEvent e) ->
             {
-                hostServer = txtServer.getText();
+                hostServer = cmbServer.getValue().toString();
                 portNo = Integer.parseInt(txtPort.getText());
                 stationNo = txtStationNo.getText();
                 ClientGUI client = new ClientGUI(hostServer, portNo, stationNo);
@@ -223,6 +241,13 @@ public class TrafficMonitoringApplication extends Application
                 System.out.println("Server: " + hostServer + " Port No: " + portNo + " Station No: " + stationNo);
             });
         }
+    }
+
+    private String getIPAddress() throws UnknownHostException
+    {
+        InetAddress address = InetAddress.getLocalHost();
+        String hostIP = address.getHostAddress();
+        return hostIP;
     }
 
 }

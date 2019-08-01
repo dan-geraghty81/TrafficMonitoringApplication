@@ -151,25 +151,25 @@ public class Server
             {
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
-                try
-                {
-                    mt = (MessageType) sInput.readObject();
-                    if (mt.getType() == 0)
-                    {
-                        username = mt.getMessage();
-                        gui.displayNotifications(2, username);
-                    }
-                    else
-                    {
-                        sOutput.writeObject(new MessageType(5, "Error with username"));
-                        return;
-                    }
-                }
-                catch (ClassNotFoundException ex)
-                {
-                    System.out.println("Class Not Found: " + ex);
-                }
-                gui.displayNotifications(2, username);
+//                try
+//                {
+//                    mt = (MessageType) sInput.readObject();
+//                    if (mt.getType() == 0)
+//                    {
+//                        username = mt.getMessage();
+//                        gui.displayNotifications(2, username);
+//                    }
+//                    else
+//                    {
+//                        sOutput.writeObject(new MessageType(5, "Error with username"));
+//                        return;
+//                    }
+//                }
+//                catch (ClassNotFoundException ex)
+//                {
+//                    System.out.println("Class Not Found: " + ex);
+//                }
+//                gui.displayNotifications(2, username);
             }
             catch (IOException e)
             {
@@ -202,6 +202,7 @@ public class Server
                 switch (mt.getType())
                 {
                     case MessageType.LOGIN:
+                        username = mt.getMessage();
                         gui.displayNotifications(2, username);
                         break;
                     case MessageType.LOGOUT:
