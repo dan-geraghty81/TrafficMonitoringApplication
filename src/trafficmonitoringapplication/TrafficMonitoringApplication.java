@@ -1,14 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Class: TrafficMonitoringApplication
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: July 2019
+ *
+ * Purpose: Main class to setup the program to determine if application is to run
+ * as the server or client and identify network settings
+ *
+ * Assessment 2 - ICTPRG523
  */
 package trafficmonitoringapplication;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import trafficmonitoringapplication.Resources.GUILibrary;
 import javafx.application.Application;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -25,10 +30,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-/**
- *
- * @author Dan
- */
 public class TrafficMonitoringApplication extends Application
 {
 //<editor-fold defaultstate="collapsed" desc="GUI Global Variables">
@@ -50,6 +51,7 @@ public class TrafficMonitoringApplication extends Application
     private ObservableList<String> ipAddress = observableArrayList();
 //</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Run Methods">
     /**
      * @param args the command line arguments
      */
@@ -57,7 +59,7 @@ public class TrafficMonitoringApplication extends Application
     {
         launch(args);
     }
-
+    
     @Override
     public void start(Stage primaryStage)
     {
@@ -73,39 +75,42 @@ public class TrafficMonitoringApplication extends Application
         createScene(primaryStage);
         appStage.show();
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Create Scene Methods">
     private void createScene(Stage primaryStage)
     {
         appStage = primaryStage;
         configScene = new Scene(root, 400, 400);
         addTitleContainer();
         createAppConfigScene();
-
         appStage.setTitle("Traffic Monitoring System");
         appStage.setScene(configScene);
     }
-
+    
     private void createAppConfigScene()
     {
         root.setCenter(null);
         addAppConfigContainer();
         addAppClickEvents();
     }
-
+    
     private void createServerScene()
     {
         root.setCenter(null);
         addServerContainer();
         addAppClickEvents();
     }
-
+    
     private void createClientScene()
     {
         root.setCenter(null);
         addClientContainer();
         addAppClickEvents();
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Main Scene Setup">
     private void addTitleContainer()
     {
         boxTitle = GUILibrary.addAHBox(root, "Top", 20, 400, 50);
@@ -114,7 +119,7 @@ public class TrafficMonitoringApplication extends Application
         lblTitle.setAlignment(Pos.CENTER);
         lblTitle.getStyleClass().add("label-heading");
     }
-
+    
     private void addAppConfigContainer()
     {
         configScene.getStylesheets().clear();
@@ -128,12 +133,13 @@ public class TrafficMonitoringApplication extends Application
         btnServer = GUILibrary.addAButton(boxSetup, "Server Setup", 100, 50);
         btnClient = GUILibrary.addAButton(boxSetup, "Client Setup", 100, 50);
         boxAppConfig.getChildren().add(boxSetup);
-
         boxButtons = GUILibrary.addAHBox(root, "Bottom", 20, 400, 100);
         boxButtons.setAlignment(Pos.CENTER);
         btnExit = GUILibrary.addAButton(boxButtons, "Exit", 100, 50);
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Server Scene Setup">
     private void addServerContainer()
     {
         configScene.getStylesheets().clear();
@@ -151,7 +157,9 @@ public class TrafficMonitoringApplication extends Application
         btnStartServer = GUILibrary.addAButton(boxButtons, "Start Server", 100, 50);
         btnBack = GUILibrary.addAButton(boxButtons, "Back", 100, 50);
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Client Scene Setup">
     private void addClientContainer()
     {
         configScene.getStylesheets().clear();
@@ -166,21 +174,14 @@ public class TrafficMonitoringApplication extends Application
         txtPort.setText("1234");
         lblStationNo = GUILibrary.addALabel(boxClientConfig, "Enter Station Number:");
         txtStationNo = GUILibrary.addATextField(boxClientConfig, 200, true);
-
         boxButtons = GUILibrary.addAHBox(root, "Bottom", 20, 400, 100);
         boxButtons.setAlignment(Pos.CENTER);
         btnStartClient = GUILibrary.addAButton(boxButtons, "Start Client", 100, 50);
         btnBack = GUILibrary.addAButton(boxButtons, "Back", 100, 50);
     }
+//</editor-fold>
 
-    private void addButtonContainer()
-    {
-        boxButtons = GUILibrary.addAHBox(root, "Bottom", 20, 400, 100);
-        boxButtons.setAlignment(Pos.CENTER);
-        btnStartServer = GUILibrary.addAButton(boxButtons, "Start Server", 100, 50);
-        btnExit = GUILibrary.addAButton(boxButtons, "Exit", 100, 50);
-    }
-
+//<editor-fold defaultstate="collapsed" desc="Click Events">
     private void addAppClickEvents()
     {
         if (btnExit != null)
@@ -190,7 +191,7 @@ public class TrafficMonitoringApplication extends Application
                 System.exit(0);
             });
         }
-
+        
         if (btnBack != null)
         {
             btnBack.setOnAction((ActionEvent e) ->
@@ -198,7 +199,7 @@ public class TrafficMonitoringApplication extends Application
                 createAppConfigScene();
             });
         }
-
+        
         if (btnServer != null)
         {
             btnServer.setOnAction((ActionEvent e) ->
@@ -206,7 +207,7 @@ public class TrafficMonitoringApplication extends Application
                 createServerScene();
             });
         }
-
+        
         if (btnClient != null)
         {
             btnClient.setOnAction((ActionEvent e) ->
@@ -214,7 +215,7 @@ public class TrafficMonitoringApplication extends Application
                 createClientScene();
             });
         }
-
+        
         if (btnStartServer != null)
         {
             btnStartServer.setOnAction((ActionEvent e) ->
@@ -223,11 +224,11 @@ public class TrafficMonitoringApplication extends Application
                 portNo = Integer.parseInt(txtPort.getText());
                 ServerGUI server = new ServerGUI(hostServer, portNo);
                 appStage.close();
-
+                
                 System.out.println("Server: " + hostServer + " Port No: " + portNo);
             });
         }
-
+        
         if (btnStartClient != null)
         {
             btnStartClient.setOnAction((ActionEvent e) ->
@@ -237,17 +238,25 @@ public class TrafficMonitoringApplication extends Application
                 stationNo = txtStationNo.getText();
                 ClientGUI client = new ClientGUI(hostServer, portNo, stationNo);
                 appStage.close();
-
+                
                 System.out.println("Server: " + hostServer + " Port No: " + portNo + " Station No: " + stationNo);
             });
         }
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Helper Methods">
+    /**
+     * Purpose: Get the IPAddress of the system the application is running
+     * on
+     *
+     * @return String value of host IP address
+     */
     private String getIPAddress() throws UnknownHostException
     {
         InetAddress address = InetAddress.getLocalHost();
         String hostIP = address.getHostAddress();
         return hostIP;
     }
-
+//</editor-fold>
 }

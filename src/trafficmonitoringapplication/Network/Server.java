@@ -6,15 +6,10 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import trafficmonitoringapplication.ServerGUI;
 
 public class Server
 {
-
-    final Logger logger = LoggerFactory.getLogger(Server.class);
-
     private static int stationID;
     private ArrayList<StationThread> stationList;
     private boolean connected, serverStarted = false;
@@ -186,7 +181,8 @@ public class Server
                 try
                 {
                     mt = (MessageType) sInput.readObject();
-                    gui.displayMessage("New data received from station: " + username);
+                    System.out.println(mt.getMessage());
+                    
                 }
                 catch (IOException e)
                 {
@@ -214,6 +210,7 @@ public class Server
                         break;
                     case MessageType.DATA:
                         gui.receiveTableData(message);
+                        gui.displayMessage("New data received from station: " + username);
                         break;
                     case MessageType.STATIONS:
                         for (int i = 0; i < stationList.size(); ++i)

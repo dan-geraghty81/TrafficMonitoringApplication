@@ -1,7 +1,14 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Class: ServerGUI
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: July 2019
+ *
+ * Purpose: GUI Setup for the server to display incoming information from
+ * Monitoring Station Clients
+ *
+ * Assessment 2 - ICTPRG523
  */
 package trafficmonitoringapplication;
 
@@ -258,7 +265,7 @@ public class ServerGUI extends Application
         btnLocation.setOnAction((ActionEvent e) ->
         {
             createSortList();
-            sortList = bubbleSortByLocation(sortList);
+            sortList = quickSortByLocation(sortList);
             for (int i = 0; i < sortList.size(); i++)
             {
                 System.out.println(sortList.get(i));
@@ -295,7 +302,7 @@ public class ServerGUI extends Application
 
         btnDisplay.setOnAction((ActionEvent e) ->
         {
-
+            bTree.TopView(bTree.getNode());
         });
         btnPreOrder.setOnAction((ActionEvent e) ->
         {
@@ -342,26 +349,36 @@ public class ServerGUI extends Application
         }
     }
 
-    private ArrayList<String> bubbleSortByLocation(ArrayList<String> list)
+    private ArrayList<String> quickSortByLocation(ArrayList<String> list)
     {
-        String temp;
+        if (list.size() <= 1)
+        {
+            return list;   
+        }
+        ArrayList<String> lesser = new ArrayList<>();
+        ArrayList<String> greater = new ArrayList<>();
+        String pivot = list.get(list.size() - 1);
         for (int i = 0; i < list.size() - 1; i++)
         {
-            //Index will point to node next to current
-            for (int j = 0; j < list.size() - i - 1; j++)
+            String[] temp1 = list.get(i).split(", ");
+            String[] temp2 = pivot.split(", ");
+            if (Integer.parseInt(temp1[2]) < Integer.parseInt(temp2[2]))
             {
-                //If current's data is greater than index's data, swap the data of current and index
-                String[] data1 = list.get(j).split(", ");
-                String[] data2 = list.get(j + 1).split(", ");
-                if (Integer.parseInt(data1[1]) > Integer.parseInt(data2[1]))
-                {
-                    temp = list.get(j + 1);
-                    list.set(j + 1, list.get(j));
-                    list.set(j, temp);
-                }
+                lesser.add(list.get(i));
+            }
+            else
+            {
+                greater.add(list.get(i));
             }
         }
-        return list;
+
+        lesser = quickSortByLocation(lesser);
+        greater = quickSortByLocation(greater);
+
+        lesser.add(pivot);
+        lesser.addAll(greater);
+
+        return lesser;
     }
 
     private ArrayList<String> inserstionSortByVehicle(ArrayList<String> list)

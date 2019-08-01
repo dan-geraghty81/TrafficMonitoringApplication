@@ -5,6 +5,12 @@
  */
 package trafficmonitoringapplication.BTree;
 
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Queue;
+import java.util.TreeMap;
+
 /**
  *
  * @author Daniel
@@ -20,7 +26,7 @@ public class BinaryTree
     {
         return root;
     }
-    
+
     private BTNode addRecursive(BTNode current, int value, String data)
     {
         if (current == null)
@@ -103,21 +109,21 @@ public class BinaryTree
         }
         return msg;
     }
-    
+
     public void setMessage(String msg)
     {
         this.msg = msg;
     }
-    
+
     public int getSize()
     {
         return size;
     }
-    
+
     public String saveBinaryTree(BTNode node, int index)
     {
         setMessage("");
-        switch(index)
+        switch (index)
         {
             case 1:
                 msg = savePreOrder(root);
@@ -131,7 +137,7 @@ public class BinaryTree
         }
         return msg;
     }
-    
+
     public String saveInOrder(BTNode node)
     {
         if (node != null)
@@ -142,7 +148,7 @@ public class BinaryTree
         }
         return msg;
     }
-    
+
     public String savePreOrder(BTNode node)
     {
         if (node != null)
@@ -164,5 +170,47 @@ public class BinaryTree
         }
         return msg;
     }
-    
+
+    public void TopView(BTNode root) { 
+        class QueueObj { 
+            BTNode node; 
+            int hd; 
+  
+            QueueObj(BTNode node, int hd) { 
+                this.node = node; 
+                this.hd = hd; 
+            } 
+        } 
+        Queue<QueueObj> q = new LinkedList<QueueObj>(); 
+        Map<Integer, BTNode> topViewMap = new TreeMap<Integer, BTNode>(); 
+  
+        if (root == null) { 
+            return; 
+        } else { 
+            q.add(new QueueObj(root, 0)); 
+        } 
+  
+        System.out.println("The top view of the tree is : "); 
+          
+        // count function returns 1 if the container  
+        // contains an element whose key is equivalent  
+        // to hd, or returns zero otherwise. 
+        while (!q.isEmpty()) { 
+            QueueObj tmpNode = q.poll(); 
+            if (!topViewMap.containsKey(tmpNode.hd)) { 
+                topViewMap.put(tmpNode.hd, tmpNode.node); 
+            } 
+  
+            if (tmpNode.node.left != null) { 
+                q.add(new QueueObj(tmpNode.node.left, tmpNode.hd - 1)); 
+            } 
+            if (tmpNode.node.right != null) { 
+                q.add(new QueueObj(tmpNode.node.right, tmpNode.hd + 1)); 
+            } 
+  
+        } 
+        for (Entry<Integer, BTNode> entry : topViewMap.entrySet()) { 
+            System.out.print(entry.getValue().value); 
+        } 
+    } 
 }
