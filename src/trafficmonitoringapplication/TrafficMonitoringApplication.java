@@ -12,8 +12,14 @@
  */
 package trafficmonitoringapplication;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import trafficmonitoringapplication.Resources.GUILibrary;
 import javafx.application.Application;
 import static javafx.collections.FXCollections.observableArrayList;
@@ -46,7 +52,7 @@ public class TrafficMonitoringApplication extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Global Variables">
-    String hostServer, stationNo;
+    String hostServer, stationNo, externalIP;
     int portNo;
     private ObservableList<String> ipAddress = observableArrayList();
 //</editor-fold>
@@ -66,12 +72,18 @@ public class TrafficMonitoringApplication extends Application
         try
         {
             hostServer = getIPAddress();
+            externalIP = getExternalIp();
         }
         catch (UnknownHostException ex)
         {
             System.out.println(ex);
         }
+        catch (Exception ex)
+        {
+            Logger.getLogger(TrafficMonitoringApplication.class.getName()).log(Level.SEVERE, null, ex);
+        }
         ipAddress.add(hostServer);
+        ipAddress.add(externalIP);
         createScene(primaryStage);
         appStage.show();
     }
@@ -257,6 +269,33 @@ public class TrafficMonitoringApplication extends Application
         InetAddress address = InetAddress.getLocalHost();
         String hostIP = address.getHostAddress();
         return hostIP;
+    }
+    
+    public static String getExternalIp() throws Exception
+    {
+        URL whatismyip = new URL("http://checkip.amazonaws.com");
+        BufferedReader in = null;
+        try
+        {
+            in = new BufferedReader(new InputStreamReader(
+                    whatismyip.openStream()));
+            String ip = in.readLine();
+            return ip;
+        }
+        finally
+        {
+            if (in != null)
+            {
+                try
+                {
+                    in.close();
+                }
+                catch (IOException e)
+                {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 //</editor-fold>
 }

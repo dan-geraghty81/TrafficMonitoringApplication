@@ -10,6 +10,7 @@ import trafficmonitoringapplication.ServerGUI;
 
 public class Server
 {
+
     private static int stationID;
     private ArrayList<StationThread> stationList;
     private boolean connected, serverStarted = false;
@@ -129,11 +130,13 @@ public class Server
 
     class StationThread extends Thread
     {
+
         Socket socket;
         ObjectInputStream sInput;
         ObjectOutputStream sOutput;
         String message;
         String username;
+        String clientOS;
         int id;
         MessageType mt;
 
@@ -180,9 +183,36 @@ public class Server
             {
                 try
                 {
-                    mt = (MessageType) sInput.readObject();
+                    Object data = sInput.readObject();
+                    System.out.println(data);
+                    mt = (MessageType) data;
                     System.out.println(mt.getMessage());
-                    
+                    String message = mt.getMessage();
+                    switch (mt.getType())
+                    {
+                        case MessageType.LOGIN:
+                            username = mt.getMessage();
+                            gui.displayNotifications(2, username);
+                            break;
+                        case MessageType.LOGOUT:
+                            gui.displayNotifications(3, username);
+                            connected = false;
+                            break;
+                        case MessageType.MESSAGE:
+                            gui.displayMessage(message);
+                            break;
+                        case MessageType.DATA:
+                            gui.receiveTableData(message);
+                            gui.displayMessage("New data received from station: " + username);
+                            break;
+                        case MessageType.STATIONS:
+                            for (int i = 0; i < stationList.size(); ++i)
+                            {
+                                StationThread ct = stationList.get(i);
+                                displayMessage((i + 1) + ") " + ct.username);
+                            }
+                            break;
+                    }
                 }
                 catch (IOException e)
                 {
@@ -191,35 +221,10 @@ public class Server
                 }
                 catch (ClassNotFoundException e2)
                 {
+                    System.out.println("CNFE: " + e2);
                     break;
                 }
 
-                String message = mt.getMessage();
-                switch (mt.getType())
-                {
-                    case MessageType.LOGIN:
-                        username = mt.getMessage();
-                        gui.displayNotifications(2, username);
-                        break;
-                    case MessageType.LOGOUT:
-                        gui.displayNotifications(3, username);
-                        connected = false;
-                        break;
-                    case MessageType.MESSAGE:
-                        gui.displayMessage(message);
-                        break;
-                    case MessageType.DATA:
-                        gui.receiveTableData(message);
-                        gui.displayMessage("New data received from station: " + username);
-                        break;
-                    case MessageType.STATIONS:
-                        for (int i = 0; i < stationList.size(); ++i)
-                        {
-                            StationThread ct = stationList.get(i);
-                            displayMessage((i + 1) + ") " + ct.username);
-                        }
-                        break;
-                }
             }
             remove(id);
             close();
@@ -276,6 +281,7 @@ public class Server
             {
                 displayMessage("Error sending message to " + username);
                 displayMessage(e.toString());
+                remove(id);
             }
             return true;
         }
