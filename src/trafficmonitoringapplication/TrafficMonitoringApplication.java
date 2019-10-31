@@ -1,9 +1,11 @@
 /**
- * Class: TrafficMonitoringApplication
+ * Class: TrafficMonitoringApplication.java
  *
  * @author Daniel Geraghty
  *
- * Developed: July 2019
+ * Developed: August 2019
+ * 
+ * Version: 1.0
  *
  * Purpose: Main class to setup the program to determine if application is to run
  * as the server or client and identify network settings
@@ -12,11 +14,7 @@
  */
 package trafficmonitoringapplication;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,6 +32,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 public class TrafficMonitoringApplication extends Application
@@ -43,7 +42,7 @@ public class TrafficMonitoringApplication extends Application
     Stage appStage;
     BorderPane root = new BorderPane();
     Scene configScene, serverScene, clientScene;
-    Button btnExit, btnBack, btnStartServer, btnStartClient, btnClient, btnServer;
+    Button btnExit, btnBack, btnStartServer, btnStartClient, btnClient, btnServer, btnHelp;
     TextField txtServer, txtPort, txtStationNo;
     ComboBox cmbServer;
     Label lblServer, lblPort, lblTitle, lblStationNo, lblHeading;
@@ -52,7 +51,7 @@ public class TrafficMonitoringApplication extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Global Variables">
-    String hostServer, stationNo, externalIP;
+    String hostServer, stationNo;
     int portNo;
     private ObservableList<String> ipAddress = observableArrayList();
 //</editor-fold>
@@ -65,14 +64,13 @@ public class TrafficMonitoringApplication extends Application
     {
         launch(args);
     }
-    
+
     @Override
     public void start(Stage primaryStage)
     {
         try
         {
             hostServer = getIPAddress();
-            externalIP = getExternalIp();
         }
         catch (UnknownHostException ex)
         {
@@ -83,7 +81,6 @@ public class TrafficMonitoringApplication extends Application
             Logger.getLogger(TrafficMonitoringApplication.class.getName()).log(Level.SEVERE, null, ex);
         }
         ipAddress.add(hostServer);
-        ipAddress.add(externalIP);
         createScene(primaryStage);
         appStage.show();
     }
@@ -97,23 +94,25 @@ public class TrafficMonitoringApplication extends Application
         addTitleContainer();
         createAppConfigScene();
         appStage.setTitle("Traffic Monitoring System");
+        appStage.setResizable(false);
+        appStage.setOnCloseRequest(e -> System.exit(0));
         appStage.setScene(configScene);
     }
-    
+
     private void createAppConfigScene()
     {
         root.setCenter(null);
         addAppConfigContainer();
         addAppClickEvents();
     }
-    
+
     private void createServerScene()
     {
         root.setCenter(null);
         addServerContainer();
         addAppClickEvents();
     }
-    
+
     private void createClientScene()
     {
         root.setCenter(null);
@@ -123,6 +122,9 @@ public class TrafficMonitoringApplication extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Main Scene Setup">
+    /**
+     * Method to add components to the title area of the GUI
+     */
     private void addTitleContainer()
     {
         boxTitle = GUILibrary.addAHBox(root, "Top", 20, 400, 50);
@@ -131,7 +133,10 @@ public class TrafficMonitoringApplication extends Application
         lblTitle.setAlignment(Pos.CENTER);
         lblTitle.getStyleClass().add("label-heading");
     }
-    
+
+    /**
+     * Method to add components for the main screen
+     */
     private void addAppConfigContainer()
     {
         configScene.getStylesheets().clear();
@@ -148,10 +153,14 @@ public class TrafficMonitoringApplication extends Application
         boxButtons = GUILibrary.addAHBox(root, "Bottom", 20, 400, 100);
         boxButtons.setAlignment(Pos.CENTER);
         btnExit = GUILibrary.addAButton(boxButtons, "Exit", 100, 50);
+        btnHelp = GUILibrary.addAButton(boxButtons, "Help", 100, 50);
     }
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Server Scene Setup">
+    /**
+     * Method to add components for the Server Setup screen
+     */
     private void addServerContainer()
     {
         configScene.getStylesheets().clear();
@@ -160,7 +169,7 @@ public class TrafficMonitoringApplication extends Application
         boxServerConfig = GUILibrary.addAVBox(root, "Center", 20, 400, 150);
         boxServerConfig.setAlignment(Pos.CENTER);
         lblServer = GUILibrary.addALabel(boxServerConfig, "Enter Server Address:");
-        cmbServer = GUILibrary.addAComboBox(boxServerConfig, ipAddress, 200, false);
+        cmbServer = GUILibrary.addAComboBox(boxServerConfig, ipAddress, 200, true);
         lblPort = GUILibrary.addALabel(boxServerConfig, "Enter Port Number:");
         txtPort = GUILibrary.addATextField(boxServerConfig, 200, true);
         txtPort.setText("1234");
@@ -172,6 +181,9 @@ public class TrafficMonitoringApplication extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Client Scene Setup">
+    /**
+     * Method to add components for the Client Setup screen
+     */
     private void addClientContainer()
     {
         configScene.getStylesheets().clear();
@@ -180,7 +192,7 @@ public class TrafficMonitoringApplication extends Application
         boxClientConfig = GUILibrary.addAVBox(root, "Center", 20, 400, 150);
         boxClientConfig.setAlignment(Pos.CENTER);
         lblServer = GUILibrary.addALabel(boxClientConfig, "Select Server Address:");
-        cmbServer = GUILibrary.addAComboBox(boxClientConfig, ipAddress, 200, false);
+        cmbServer = GUILibrary.addAComboBox(boxClientConfig, ipAddress, 200, true);
         lblPort = GUILibrary.addALabel(boxClientConfig, "Enter Port Number:");
         txtPort = GUILibrary.addATextField(boxClientConfig, 200, true);
         txtPort.setText("1234");
@@ -194,6 +206,9 @@ public class TrafficMonitoringApplication extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Click Events">
+    /**
+     * Method to add events to the buttons
+     */
     private void addAppClickEvents()
     {
         if (btnExit != null)
@@ -203,7 +218,7 @@ public class TrafficMonitoringApplication extends Application
                 System.exit(0);
             });
         }
-        
+
         if (btnBack != null)
         {
             btnBack.setOnAction((ActionEvent e) ->
@@ -211,7 +226,7 @@ public class TrafficMonitoringApplication extends Application
                 createAppConfigScene();
             });
         }
-        
+
         if (btnServer != null)
         {
             btnServer.setOnAction((ActionEvent e) ->
@@ -219,7 +234,7 @@ public class TrafficMonitoringApplication extends Application
                 createServerScene();
             });
         }
-        
+
         if (btnClient != null)
         {
             btnClient.setOnAction((ActionEvent e) ->
@@ -227,7 +242,7 @@ public class TrafficMonitoringApplication extends Application
                 createClientScene();
             });
         }
-        
+
         if (btnStartServer != null)
         {
             btnStartServer.setOnAction((ActionEvent e) ->
@@ -236,11 +251,11 @@ public class TrafficMonitoringApplication extends Application
                 portNo = Integer.parseInt(txtPort.getText());
                 ServerGUI server = new ServerGUI(hostServer, portNo);
                 appStage.close();
-                
+
                 System.out.println("Server: " + hostServer + " Port No: " + portNo);
             });
         }
-        
+
         if (btnStartClient != null)
         {
             btnStartClient.setOnAction((ActionEvent e) ->
@@ -250,17 +265,33 @@ public class TrafficMonitoringApplication extends Application
                 stationNo = txtStationNo.getText();
                 ClientGUI client = new ClientGUI(hostServer, portNo, stationNo);
                 appStage.close();
-                
+
                 System.out.println("Server: " + hostServer + " Port No: " + portNo + " Station No: " + stationNo);
             });
         }
+
+        if (btnHelp != null)
+        {
+            btnHelp.setOnAction((ActionEvent e) ->
+            {
+                WebView webView = new WebView();
+                webView.getEngine().load(getClass().getResource("/UserManual/UserGuide.html").toExternalForm());
+                Stage helpStage = new Stage();
+                helpStage.setTitle("Room Mapping User Guide");
+                VBox vBox = new VBox(webView);
+                Scene scene = new Scene(vBox, 960, 600);
+                helpStage.setScene(scene);
+                helpStage.show();
+            });
+
+        }
+
     }
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Helper Methods">
     /**
-     * Purpose: Get the IPAddress of the system the application is running
-     * on
+     * Purpose: Get the IPAddress of the system the application is running on
      *
      * @return String value of host IP address
      */
@@ -269,33 +300,6 @@ public class TrafficMonitoringApplication extends Application
         InetAddress address = InetAddress.getLocalHost();
         String hostIP = address.getHostAddress();
         return hostIP;
-    }
-    
-    public static String getExternalIp() throws Exception
-    {
-        URL whatismyip = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = null;
-        try
-        {
-            in = new BufferedReader(new InputStreamReader(
-                    whatismyip.openStream()));
-            String ip = in.readLine();
-            return ip;
-        }
-        finally
-        {
-            if (in != null)
-            {
-                try
-                {
-                    in.close();
-                }
-                catch (IOException e)
-                {
-                    e.printStackTrace();
-                }
-            }
-        }
     }
 //</editor-fold>
 }

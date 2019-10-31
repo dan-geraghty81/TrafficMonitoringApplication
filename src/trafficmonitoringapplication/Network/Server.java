@@ -1,5 +1,19 @@
+/**
+ * Class: Server.java
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: August 2019
+ * 
+ * Version: 1.0
+ *
+ * Purpose: Class to setup the server functions
+ *
+ * Assessment 2 - ICTPRG523
+ */
 package trafficmonitoringapplication.Network;
 
+//<editor-fold defaultstate="collapsed" desc="Imports">
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -7,17 +21,27 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import trafficmonitoringapplication.ServerGUI;
+//</editor-fold>
 
 public class Server
 {
 
+//<editor-fold defaultstate="collapsed" desc="Global Variables">
     private static int stationID;
     private ArrayList<StationThread> stationList;
     private boolean connected, serverStarted = false;
     private String serverIP, stationNo;
     private int portNo;
     private ServerGUI gui;
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Constructor">
+    /**
+     * Constructor to define the server details
+     * @param serverIP Server IP address
+     * @param portNo Server port number
+     * @param gui Server GUI
+     */
     public Server(String serverIP, int portNo, ServerGUI gui)
     {
         this.serverIP = serverIP;
@@ -25,7 +49,12 @@ public class Server
         this.gui = gui;
         stationList = new ArrayList<>();
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Start & Stop Methods">
+    /**
+     * Method to start the server and wait for connections from client
+     */
     public void start()
     {
         connected = true;
@@ -66,7 +95,7 @@ public class Server
                     }
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 displayMessage("Exception closing the server and clients: " + e);
             }
@@ -76,7 +105,10 @@ public class Server
             displayMessage("Exception on new ServerSocket: " + e);
         }
     }
-
+    
+    /**
+     * Method to close the connections and stop the server from running
+     */
     public void stop()
     {
         connected = false;
@@ -84,17 +116,27 @@ public class Server
         {
             new Socket(serverIP, portNo);
         }
-        catch (Exception e)
+        catch (IOException e)
         {
             displayMessage("Station No: " + stationNo + " has stopped.");
         }
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Helper Methods">
+    /**
+     * Method to send a message to be displayed on the Server GUI
+     * @param msg Message to be displayed
+     */
     public void displayMessage(String msg)
     {
         gui.displayMessage(msg);
     }
-
+    
+    /**
+     * Method to check is Monitoring Stations are still connected and if not
+     * closes the connection and removes it from the list
+     */
     public void displayStationList()
     {
         if (stationList.isEmpty())
@@ -114,8 +156,13 @@ public class Server
             }
         }
     }
-
-    synchronized void remove(int id)
+    
+    /**
+     * Method to remove a Monitoring Station from stationList array list
+     *
+     * @param id stationID
+     */
+    private void remove(int id)
     {
         for (int i = 0; i < stationList.size(); i++)
         {
@@ -127,7 +174,11 @@ public class Server
             }
         }
     }
+//</editor-fold>
 
+    /**
+     * Class to create a thread for each client that connects to the server
+     */
     class StationThread extends Thread
     {
 
@@ -136,10 +187,13 @@ public class Server
         ObjectOutputStream sOutput;
         String message;
         String username;
-        String clientOS;
         int id;
         MessageType mt;
 
+        /**
+         * Constructor to open input/output streams to the client
+         * @param socket the socket the client is connecting on
+         */
         StationThread(Socket socket)
         {
             id = stationID++;
@@ -149,33 +203,17 @@ public class Server
             {
                 sOutput = new ObjectOutputStream(socket.getOutputStream());
                 sInput = new ObjectInputStream(socket.getInputStream());
-//                try
-//                {
-//                    mt = (MessageType) sInput.readObject();
-//                    if (mt.getType() == 0)
-//                    {
-//                        username = mt.getMessage();
-//                        gui.displayNotifications(2, username);
-//                    }
-//                    else
-//                    {
-//                        sOutput.writeObject(new MessageType(5, "Error with username"));
-//                        return;
-//                    }
-//                }
-//                catch (ClassNotFoundException ex)
-//                {
-//                    System.out.println("Class Not Found: " + ex);
-//                }
-//                gui.displayNotifications(2, username);
             }
             catch (IOException e)
             {
                 displayMessage("Exception creating new streams: " + e);
-                return;
             }
         }
 
+        /**
+         * Method that allows the thread to accept and handle the incoming data
+         */
+        @Override
         public void run()
         {
             boolean connected = true;
@@ -230,6 +268,9 @@ public class Server
             close();
         }
 
+        /**
+         * Method to close the input/output streams and close the connection to the client
+         */
         private void close()
         {
             try
@@ -238,32 +279,27 @@ public class Server
                 {
                     sOutput.close();
                 }
-            }
-            catch (Exception e)
-            {
-            }
-            try
-            {
                 if (sInput != null)
                 {
                     sInput.close();
                 }
-            }
-            catch (Exception e)
-            {
-            };
-            try
-            {
                 if (socket != null)
                 {
                     socket.close();
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
-            }
+                System.out.println("Error: " + e);
+            } 
         }
 
+        /**
+         * Method to send a message to the client to check if they are connected
+         * If not remove the connection
+         * @param msg Message to be sent
+         * @return True/False if connected
+         */
         private boolean writeMsg(MessageType msg)
         {
             // if Client is still connected send the message to it

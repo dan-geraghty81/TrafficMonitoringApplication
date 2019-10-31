@@ -1,9 +1,11 @@
 /**
- * Class: ServerGUI
+ * Class: ServerGUI.java
  *
  * @author Daniel Geraghty
  *
- * Developed: July 2019
+ * Developed: August 2019
+ * 
+ * Version: 1.0
  *
  * Purpose: GUI Setup for the server to display incoming information from
  * Monitoring Station Clients
@@ -12,6 +14,7 @@
  */
 package trafficmonitoringapplication;
 
+//<editor-fold defaultstate="collapsed" desc="Imports">
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,6 +40,7 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -46,6 +50,8 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.controlsfx.control.Notifications;
 import trafficmonitoringapplication.BTree.BinaryTree;
+import trafficmonitoringapplication.BTree.DisplayBinaryTree;
+//</editor-fold>
 
 public class ServerGUI extends Application
 {
@@ -73,12 +79,13 @@ public class ServerGUI extends Application
     private HBox boxDetails, boxTitle, boxExit, boxBinaryButtons;
     private VBox boxCenterData;
 
-    private Label lblTitle, lblSort, lblLinkedList, lblBinaryTree, lblPreOrder, lblInOrder, lblPostOrder;
+    private Label lblTitle, lblSort, lblLinkedList, lblBinaryTree, lblPreOrder, lblInOrder, lblPostOrder, lblSearch;
+    private TextField txtSearch;
     private TextArea txtInformation, txtLinkedList, txtBinaryTree, txtConnected;
     private ScrollPane scrInformation, scrLinked, scrBinary, scrConnected;
     private TableView<MonitoringData> tblData = new TableView<MonitoringData>();
     private Button btnExit, btnCheckStatus, btnLocation, btnVehicle, btnVelocity, btnDisplay;
-    private Button btnPreOrder, btnInOrder, btnPostOrder, btnPreSave, btnInSave, btnPostSave;
+    private Button btnPreOrder, btnInOrder, btnPostOrder, btnPreSave, btnInSave, btnPostSave, btnSearch;
 
     ServerSocket serverSocket;
     Server server;
@@ -86,6 +93,12 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Constructor">
+    /**
+     * Main constructor for ServerGUI class
+     *
+     * @param serverIP Server IP Address
+     * @param portNo Server Port Number
+     */
     public ServerGUI(String serverIP, int portNo)
     {
         this.serverIP = serverIP;
@@ -97,22 +110,35 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="GUI Setup">
+    /**
+     * Method that calls relevant methods to construct the GUI
+     * 
+     */
     private void createScreen()
     {
         System.out.println(serverIP);
         System.out.println(portNo);
 
-        officeScene = new Scene(officePane, 770, 860);
+        officeScene = new Scene(officePane, 780, 860);
         addTitleContainer();
         addDataContainer();
         addClickEvents();
         addData();
         officeStage.setTitle("Monitoring Office");
         officeScene.getStylesheets().add(getClass().getResource("Resources/ServerInterfaceCSS.css").toExternalForm());
+        officeStage.setResizable(false);
         officeStage.setScene(officeScene);
+        officeStage.setOnCloseRequest(e ->
+        {
+            exitServer();
+        });
         officeStage.show();
     }
 
+    /**
+     * Method that adds testing data to the table
+     *
+     */
     private void addData()
     {
         int totVehicle = 450;
@@ -135,7 +161,7 @@ public class ServerGUI extends Application
         for (int j = 0; j < 10; j++)
         {
             totVehicle = random.nextInt(50) * 3;
-            avgVehicle = totVehicle / 4;
+            avgVehicle = totVehicle / 8;
             MonitoringData md = new MonitoringData(dataID, "" + time, "1", "8", "" + totVehicle, "" + avgVehicle, "" + random.nextInt(50));
             dataID++;
             time--;
@@ -143,6 +169,10 @@ public class ServerGUI extends Application
         }
     }
 
+    /**
+     * Method that creates the title area of the GUI
+     *
+     */
     private void addTitleContainer()
     {
         boxTitle = GUILibrary.addAHBox(officePane, "Top", 20, 770, 50);
@@ -152,6 +182,10 @@ public class ServerGUI extends Application
         lblTitle.getStyleClass().add("officeHeading");
     }
 
+    /**
+     * Method that creates the data area of the GUI
+     *
+     */
     private void addDataContainer()
     {
         boxExit = GUILibrary.createAHBox(20, 770, 100);
@@ -200,8 +234,18 @@ public class ServerGUI extends Application
         lblBinaryTree = GUILibrary.addALabel(binaryPane, "Binary Tree", 10, 10);
         lblBinaryTree.setPrefSize(750, 40);
         lblBinaryTree.getStyleClass().add("smallLabel-left");
+
+        lblSearch = GUILibrary.addALabel(binaryPane, "Search", 400, 10);
+        lblSearch.setPrefSize(50, 40);
+        lblSearch.getStyleClass().add("smallLabel-left");
+
+        txtSearch = GUILibrary.addATextField(binaryPane, 450, 15, 85, 40, true);
+
+        btnSearch = GUILibrary.addAButton(binaryPane, "Search", 550, 10, 100, 40);
+        btnSearch.getStyleClass().add("smallButton");
         btnDisplay = GUILibrary.addAButton(binaryPane, "Display", 660, 10, 100, 40);
         btnDisplay.getStyleClass().add("smallButton");
+
         txtBinaryTree = GUILibrary.addATextArea(binaryPane, 10, 50, 750, 60);
         scrBinary = GUILibrary.addAScrollPane(binaryPane, txtBinaryTree, 10, 50);
 
@@ -237,22 +281,15 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Click Events">
+    /**
+     * Method that adds the events for when the buttons are clicked
+     *
+     */
     private void addClickEvents()
     {
         btnExit.setOnAction((ActionEvent e) ->
         {
-            if (server != null)
-            {
-                try
-                {
-                    server.stop();
-                }
-                catch (Exception eClose)
-                {
-                }
-                server = null;
-            }
-            System.exit(0);
+            exitServer();
         });
 
         btnCheckStatus.setOnAction((ActionEvent e) ->
@@ -265,7 +302,8 @@ public class ServerGUI extends Application
         btnLocation.setOnAction((ActionEvent e) ->
         {
             createSortList();
-            sortList = quickSortByLocation(sortList);
+            sortList = quickSortByLocation(sortList, 2);
+            sortList = quickSortByLocation(sortList, 1);
             for (int i = 0; i < sortList.size(); i++)
             {
                 System.out.println(sortList.get(i));
@@ -300,26 +338,37 @@ public class ServerGUI extends Application
             }
         });
 
+        btnSearch.setOnAction((ActionEvent e) ->
+        {
+            String found = bTree.containsNode(Integer.parseInt(txtSearch.getText()));
+            String output = (found.equals("true"))
+                    ? txtSearch.getText() + " has been found."
+                    : txtSearch.getText() + " has not been found.";
+            txtBinaryTree.setText(output);
+            txtSearch.setText("");
+        });
+
         btnDisplay.setOnAction((ActionEvent e) ->
         {
-            bTree.TopView(bTree.getNode());
+            DisplayBinaryTree dTree = new DisplayBinaryTree(bTree);
         });
+        
         btnPreOrder.setOnAction((ActionEvent e) ->
         {
             bTree.setMessage("Pre-Order: ");
-            txtBinaryTree.setText(bTree.traversePreOrder(bTree.getNode()));
+            txtBinaryTree.setText(bTree.traversePreOrder(bTree.getRootNode()));
         });
 
         btnInOrder.setOnAction((ActionEvent e) ->
         {
             bTree.setMessage("In-Order: ");
-            txtBinaryTree.setText(bTree.traverseInOrder(bTree.getNode()));
+            txtBinaryTree.setText(bTree.traverseInOrder(bTree.getRootNode()));
         });
 
         btnPostOrder.setOnAction((ActionEvent e) ->
         {
             bTree.setMessage("Post-Order: ");
-            txtBinaryTree.setText(bTree.traversePostOrder(bTree.getNode()));
+            txtBinaryTree.setText(bTree.traversePostOrder(bTree.getRootNode()));
         });
 
         btnPreSave.setOnAction((ActionEvent e) ->
@@ -340,6 +389,10 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Sort Methods">
+    /**
+     * Method that creates an ArrayList from the table data
+     *
+     */
     private void createSortList()
     {
         sortList = new ArrayList();
@@ -349,11 +402,18 @@ public class ServerGUI extends Application
         }
     }
 
-    private ArrayList<String> quickSortByLocation(ArrayList<String> list)
+    /**
+     * Method that uses an ArrayList and sorts the data using a quick sort.
+     * 
+     * @param list ArrayList of data
+     * @param index Index of data to be sorted by
+     * @return 
+     */
+    private ArrayList<String> quickSortByLocation(ArrayList<String> list, int index)
     {
         if (list.size() <= 1)
         {
-            return list;   
+            return list;
         }
         ArrayList<String> lesser = new ArrayList<>();
         ArrayList<String> greater = new ArrayList<>();
@@ -362,7 +422,7 @@ public class ServerGUI extends Application
         {
             String[] temp1 = list.get(i).split(", ");
             String[] temp2 = pivot.split(", ");
-            if (Integer.parseInt(temp1[2]) < Integer.parseInt(temp2[2]))
+            if (Integer.parseInt(temp1[index]) < Integer.parseInt(temp2[index]))
             {
                 lesser.add(list.get(i));
             }
@@ -372,8 +432,8 @@ public class ServerGUI extends Application
             }
         }
 
-        lesser = quickSortByLocation(lesser);
-        greater = quickSortByLocation(greater);
+        lesser = quickSortByLocation(lesser, index);
+        greater = quickSortByLocation(greater, index);
 
         lesser.add(pivot);
         lesser.addAll(greater);
@@ -381,8 +441,18 @@ public class ServerGUI extends Application
         return lesser;
     }
 
+    /**
+     * Method that uses an ArrayList and sorts the data using a insertion sort.
+     * 
+     * @param list ArrayList of data
+     * @return 
+     */
     private ArrayList<String> inserstionSortByVehicle(ArrayList<String> list)
     {
+        if (list.size() <= 1)
+        {
+            return list;
+        }
         String temp;
         for (int i = 0; i < list.size(); i++)
         {
@@ -401,6 +471,12 @@ public class ServerGUI extends Application
         return list;
     }
 
+    /**
+     * Method that uses an ArrayList and sorts the data using a merge sort.
+     * 
+     * @param list ArrayList of data
+     * @return 
+     */
     private ArrayList<String> mergeSortVelocity(ArrayList<String> list)
     {
         //Split list
@@ -482,7 +558,12 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Doubly Linked Lists">
-    public void createLinkedList(ArrayList<String> list)
+    /**
+     * Method that creates a Doubly Linked List from the sorted ArrayList.
+     * 
+     * @param list ArrayList of data
+     */
+    private void createLinkedList(ArrayList<String> list)
     {
         dll = new DoublyLinkedList();
         for (int i = 0; i < list.size(); i++)
@@ -501,19 +582,28 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Binary Tree">
-    private void createBinaryTree()
+    /**
+     * Method that retrieves the data from the table and adds it to a Binary Tree.
+     *
+     */
+    public void createBinaryTree()
     {
         String data;
         bTree = new BinaryTree();
         for (int row = 0; row < tblData.getItems().size(); row++)
         {
             data = tblData.getItems().get(row).getLocation() + " @ " + tblData.getItems().get(row).getTime();
-            System.out.println(tblData.getItems().get(row).getObject());
             bTree.add(Integer.parseInt(tblData.getItems().get(row).getTotVehicles()), data);
             txtBinaryTree.setText("Vehicle numbers added to Binary Tree.\nSelect a button below to display data.");
         }
     }
 
+    /**
+     * Method that converts the output of the Binary Tree into a LinkedHashMap and
+     * passes the data onto the writeFile method.
+     * 
+     * @param index Determines which button made the save call
+     */
     private void saveBinaryTree(int index)
     {
         binaryOutput = new LinkedHashMap<>();
@@ -523,19 +613,16 @@ public class ServerGUI extends Application
         switch (index)
         {
             case 1:
-                data = bTree.saveBinaryTree(bTree.getNode(), 1);
+                data = bTree.saveBinaryTree(bTree.getRootNode(), 1);
                 outputFileName = "BT-PreOrder.txt";
-                System.out.println(data);
                 break;
             case 2:
-                data = bTree.saveBinaryTree(bTree.getNode(), 2);
+                data = bTree.saveBinaryTree(bTree.getRootNode(), 2);
                 outputFileName = "BT-InOrder.txt";
-                System.out.println(data);
                 break;
             case 3:
-                data = bTree.saveBinaryTree(bTree.getNode(), 3);
+                data = bTree.saveBinaryTree(bTree.getRootNode(), 3);
                 outputFileName = "BT-PostOrder.txt";
-                System.out.println(data);
                 break;
         }
 
@@ -547,13 +634,11 @@ public class ServerGUI extends Application
             binaryOutput.put(output[i], Integer.parseInt(output[i + 1]));
         }
         writeFile(outputFileName);
-        System.out.println(binaryOutput);
-
     }
 
 //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc="Override Methods">
+//<editor-fold defaultstate="collapsed" desc="Override Methods - Unused">
     @Override
     public void init() throws Exception
     {
@@ -571,23 +656,42 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Messages">
+    /**
+     * Method to append data to the Information panel
+     * @param msg String message to be displayed
+     */
     public void displayMessage(String msg)
     {
         txtInformation.appendText(msg + "\n");
     }
 
+    /**
+     * Method to append data to the Information panel about a connected station
+     * @param station Station number
+     */
     private void loginNotification(String station)
     {
         String msg = ("Station " + station + " has connected");
         displayMessage(msg);
     }
 
+    /**
+     * Method to append data to the Information panel about a disconnected station
+     * @param station Station number
+     */
     private void logoutNotification(String station)
     {
         String msg = ("Station " + station + " has disconnected");
         displayMessage(msg);
     }
 
+    /**
+     * Method to display a pop up notification using the ControlsFX java library
+     * depending on the id and message provided
+     *
+     * @param id Notification id
+     * @param msg Message to be displayed
+     */
     public void displayNotifications(int id, String msg)
     {
         Thread thread = null;
@@ -654,6 +758,9 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="Table Manipulation">
+    /**
+     * Method to add and format columns to the table
+     */
     private void createTable()
     {
         TableColumn dataIDColumn = new TableColumn("ID");
@@ -696,7 +803,12 @@ public class ServerGUI extends Application
         tblData.setLayoutX(10);
         tblData.setLayoutY(10);
     }
-
+    
+    /**
+     * Method to add data to the table
+     * 
+     * @param data Message data from the client
+     */
     public void receiveTableData(String data)
     {
         dataID++;
@@ -706,6 +818,10 @@ public class ServerGUI extends Application
         tblData.getItems().add(md);
     }
 
+    /**
+     * Method to reset the current collection of table data after sorting
+     * @param list ArrayList of table data
+     */
     private void resetTableData(ArrayList<String> list)
     {
         tblData.getItems().clear();
@@ -722,6 +838,11 @@ public class ServerGUI extends Application
 //</editor-fold>
 
 //<editor-fold defaultstate="collapsed" desc="File Operations">
+    /**
+     * Method to write data to a file
+     * 
+     * @param filename Name of output file
+     */
     public void writeFile(String filename)
     {
         try
@@ -731,13 +852,20 @@ public class ServerGUI extends Application
             // Create Iterator to traverse through the LinkedHashMap to write
             // data to output file
             Iterator it = binaryOutput.values().iterator();
-            for (Object value : binaryOutput.keySet())
+            for (Object key : binaryOutput.keySet())
             {
-                Object iter = it.next();
-                out.write("Station " + value + " " + iter + " vehicles.");
+                Object value = it.next();
+                out.write("Station " + key + " " + value + " vehicles.");
                 out.newLine();
             }
             out.close();
+            notification = Notifications.create()
+                    .title("File Saved")
+                    .text("File: " + filename + " has been saved.")
+                    .position(Pos.TOP_RIGHT)
+                    .darkStyle()
+                    .hideAfter(Duration.seconds(5));
+            notification.showConfirm();
         }
         catch (IOException ex)
         {
@@ -746,28 +874,35 @@ public class ServerGUI extends Application
     }
 //</editor-fold>
 
-//<editor-fold defaultstate="collapsed" desc="Helper Classes">
-    class DisplayNotification extends Thread
+//<editor-fold defaultstate="collapsed" desc="Helper Methods">
+    /**
+     * Method to stop server connections on exit
+     */
+    private void exitServer()
     {
-
-        @Override
-        public void run()
+        if (server != null)
         {
             try
             {
-                Thread.sleep(5000);
+                server.stop();
             }
-            catch (InterruptedException ex)
+            catch (Exception eClose)
             {
-                Logger.getLogger(ServerGUI.class.getName()).log(Level.SEVERE, null, ex);
             }
+            server = null;
         }
-
+        System.exit(0);
     }
+//</editor-fold>
 
+//<editor-fold defaultstate="collapsed" desc="Helper Classes">
+    /**
+     * Class for the server thread
+     */
     class ServerRunning extends Thread
     {
 
+        @Override
         public void run()
         {
             server.start();         // should execute until if fails

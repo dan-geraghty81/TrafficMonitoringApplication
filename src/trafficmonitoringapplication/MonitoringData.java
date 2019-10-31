@@ -1,7 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Class: MonitoringData.java
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: August 2019
+ * 
+ * Version: 1.0
+ *
+ * Purpose: Class to define the data structure of the incoming data to the server
+ *
+ * Assessment 2 - ICTPRG523
  */
 package trafficmonitoringapplication;
 

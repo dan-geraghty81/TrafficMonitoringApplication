@@ -1,16 +1,20 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Class: MessageType.java
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: August 2019
+ * 
+ * Version: 1.0
+ *
+ * Purpose: Class to define the properties of the message data being sent
+ *
+ * Assessment 2 - ICTPRG523
  */
 package trafficmonitoringapplication.Network;
 
 import java.io.Serializable;
 
-/**
- *
- * @author Dan
- */
 public class MessageType implements Serializable
 {
     protected static final long serialVersionUID = 1112122200L;
@@ -18,14 +22,12 @@ public class MessageType implements Serializable
     private int type;
     private String message;
 
-    // constructor
     public MessageType(int type, String message)
     {
         this.type = type;
         this.message = message;
     }
 
-    // getters
     int getType()
     {
         return type;

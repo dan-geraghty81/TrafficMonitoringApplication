@@ -1,14 +1,18 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Class: BTNode.java
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: August 2019
+ * 
+ * Version 1.0
+ *
+ * Purpose: Class to define a Node for the Binary Tree
+ * 
+ * Assessment 1 - ICTPRG523
  */
 package trafficmonitoringapplication.BTree;
 
-/**
- *
- * @author Daniel
- */
 public class BTNode
 {
     int value;

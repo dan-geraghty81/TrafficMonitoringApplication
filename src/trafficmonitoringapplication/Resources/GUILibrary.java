@@ -221,11 +221,11 @@ public class GUILibrary
         return myTextArea;
     }
 
-    public static ComboBox addAComboBox(VBox root, ObservableList list, double width, boolean disable)
+    public static ComboBox addAComboBox(VBox root, ObservableList list, double width, boolean editable)
     {
         ComboBox myComboBox = new ComboBox(list);
         root.getChildren().add(myComboBox);
-        myComboBox.setDisable(disable);
+        myComboBox.setEditable(editable);
         myComboBox.setMaxWidth(width);
         return myComboBox;
     }

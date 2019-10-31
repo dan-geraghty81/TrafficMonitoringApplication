@@ -1,27 +1,41 @@
+/**
+ * Class: Client.java
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: August 2019
+ * 
+ * Version: 1.0
+ *
+ * Purpose: Class to setup the client interactions to the server
+ *
+ * Assessment 2 - ICTPRG523
+ */
+
 package trafficmonitoringapplication.Network;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import trafficmonitoringapplication.ClientGUI;
 
 public class Client
 {
-
-    private ObjectInputStream sInput;		// to read from the socket
-    private ObjectOutputStream sOutput;		// to write on the socket
+    private ObjectInputStream sInput;		
+    private ObjectOutputStream sOutput;		
     private Socket socket;
-
-    // if I use a GUI or not
     private ClientGUI cg;
+    private final String server, stationNo;
+    private final int port;
 
-    // the server, the port and the username
-    private String server, stationNo;
-    private int port;
-
+    /**
+     * Constructor to set the necessary server details
+     * @param server Server IP address
+     * @param port Server port number
+     * @param station Client station number
+     * @param cg Client UI
+     */
     public Client(String server, int port, String station, ClientGUI cg)
     {
         this.server = server;
@@ -30,13 +44,17 @@ public class Client
         this.cg = cg;
     }
 
+    /**
+     * Method to start the connection to the server and open input/output streams
+     * @return True/False if connection is made
+     */
     public boolean start()
     {
         try
         {
             socket = new Socket(server, port);
         } 
-        catch (Exception ec)
+        catch (IOException ec)
         {
             displayMessage("Error connectiong to server:" + ec);
             return false;
@@ -75,13 +93,18 @@ public class Client
         return true;
     }
 
+    /**
+     * Method to display incoming messages from the server to the console
+     * @param msg received message
+     */
     private void displayMessage(String msg)
     {
         System.out.println(msg);      // println in console mode
     }
 
-    /*
-	 * To send a message to the server
+    /**
+     * Method to send a message of the type MessageType to the server
+     * @param msg data to be sent to the server
      */
     public void sendMessage(MessageType msg)
     {
@@ -95,9 +118,8 @@ public class Client
         }
     }
 
-    /*
-	 * When something goes wrong
-	 * Close the Input/Output streams and disconnect not much to do in the catch clause
+    /**
+     * Method to close input/output streams and disconnect server connection
      */
     public void disconnect()
     {
@@ -108,7 +130,7 @@ public class Client
                 sInput.close();
             }
         }
-        catch (Exception e)
+        catch (IOException e)
         {
         } // not much else I can do
         try
@@ -118,7 +140,7 @@ public class Client
                 sOutput.close();
             }
         }
-        catch (Exception e)
+        catch (IOException e)
         {
         } // not much else I can do
         try
@@ -128,18 +150,18 @@ public class Client
                 socket.close();
             }
         }
-        catch (Exception e)
+        catch (IOException e)
         {
         } // not much else I can do
 
     }
 
-    /*
-	 * a class that waits for the message from the server and append them to the JTextArea
-	 * if we have a GUI or simply System.out.println() it in console mode
+    /**
+     * Class to listen for messages from the server and display them in the console
      */
     class ListenFromServer extends Thread
     {
+        @Override
         public void run()
         {
             while (true)
@@ -147,7 +169,6 @@ public class Client
                 try
                 {
                     MessageType msg = (MessageType)sInput.readObject();
-                    // if console mode print the message and add back the prompt
                     if (msg.getType() == 4){
                         System.out.println("Station Check");
                     }

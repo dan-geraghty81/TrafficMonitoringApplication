@@ -1,7 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Class: DLLNode.java
+ *
+ * @author Daniel Geraghty
+ *
+ * Developed: August 2019
+ * 
+ * Version 1.0
+ *
+ * Purpose: Class to define a Node for the Doubly Linked List
+ * 
+ * Assessment 1 - ICTPRG523
  */
 package trafficmonitoringapplication.DLL;
 
@@ -13,13 +21,6 @@ class DLLNode
     DLLNode previous;
 
     public DLLNode(String data)
-    {
-        this.data = data;
-        next = null;
-        previous = null;
-    }
-
-    public DLLNode(int data)
     {
         this.data = data;
         next = null;
