@@ -192,7 +192,7 @@ public class DoublyLinkedList
     /**
      * Method to return the element at a particular index
      *
-     * @param index
+     * @param index index of element to be searched for
      * @return node at specified index
      */
     public String elementAt(int index)

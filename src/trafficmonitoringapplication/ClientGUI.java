@@ -274,8 +274,8 @@ public class ClientGUI extends Application
         int average;
         try
         {
-            int vehicles = Integer.parseInt(checkInteger(txtTotVehicles.getText()));
-            int lanes = Integer.parseInt(checkInteger(txtLanes.getText()));
+            int vehicles = Integer.parseInt((txtTotVehicles.getText()));
+            int lanes = Integer.parseInt((txtLanes.getText()));
             if (vehicles != 0 && lanes != 0)
             {
                 average = vehicles / lanes;
